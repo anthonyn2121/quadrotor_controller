@@ -1,3 +1,4 @@
+clear; clc;
 m = 0.030;
 Ixx = 1.43e-5;
 Iyy = 1.43e-5;
@@ -22,17 +23,32 @@ Br = [0      0       0; ...
     0       0       1/Izz];
 
 
-C = zeros(5,5);
+C = zeros(8,5);
 %C = zeros(3,3);
-C(1,1) = 1;
-C(2,2) = 1; 
 %C(3,3) = 1;
-C(3,5) = 1; 
-C(4,3) = 1; 
-C(5,4) = 1;
+C(1,1) = 1;
+C(2,2) = 1;
+C(3,5) = 1;
+C(4,1) = 1;
+C(5,2) = 1;
+C(6,3) = 1;
+C(7,4) = 1; 
+C(8,5) = 1;
 
-P=ss(Ar,Br,C,zeros(5,3));
+%C(1,1) = 1;
+%C(2,2) = 1; 
+%C(3,5) = 1;
+%C(4,1) = 1;
+%C(5,2) = 1; 
+%C(6,5) = 1;
+
+%C(4,3) = 1; 
+%C(5,4) = 1;
+
+P=ss(Ar,Br,C,zeros(8,3));
 
 nmeas = 5;
 ncon = 3;
-[K,CL,asd] = hinfsyn(P,nmeas,ncon)
+[K,CL,asd] = hinfsyn(P,nmeas,ncon);
+save('K_matrix.mat','K');
+save('CL_matrix.mat','CL');
