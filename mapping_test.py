@@ -50,7 +50,7 @@ def T(x):
 x_hat = x_init[:5]
 x = x_hat 
 
-K = loadmat('/home/anthony/Downloads/Cmat_new.mat')
+K = loadmat('Cmat_new.mat')
 Cmat = K['KnewC']
 
 alpha = np.zeros(3)
