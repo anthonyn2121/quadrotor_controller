@@ -75,4 +75,3 @@ beta = np.array([
 v = Cmat @ x
 u = alpha + beta @ v
 print(u)
-# print(Cmat.shape)
