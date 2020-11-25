@@ -6,7 +6,7 @@ Izz = 2.89e-5;
 l = 0.046;
 Kt = 2.3e-08;
 Kd = 7.8e-11;
-d = Kd/Kt;
+d = 2.4e-3;
 g = 9.81;
 
 Ar = [0         (d*g*m)/Kd      1               0                       0; ...
@@ -23,32 +23,39 @@ Br = [0      0       0; ...
     0       0       1/Izz];
 
 
-C = zeros(8,5);
+C = zeros(3,5);
 %C = zeros(3,3);
 %C(3,3) = 1;
 C(1,1) = 1;
 C(2,2) = 1;
 C(3,5) = 1;
-C(4,1) = 1;
-C(5,2) = 1;
-C(6,3) = 1;
-C(7,4) = 1; 
-C(8,5) = 1;
-
-%C(1,1) = 1;
-%C(2,2) = 1; 
-%C(3,5) = 1;
 %C(4,1) = 1;
-%C(5,2) = 1; 
-%C(6,5) = 1;
+%C(5,2) = 1;
+%C(6,3) = 1;
+%C(7,4) = 1; 
+%C(8,5) = 1;
 
-%C(4,3) = 1; 
-%C(5,4) = 1;
+P=ss(Ar,Br,C,zeros(3,3));
 
-P=ss(Ar,Br,C,zeros(8,3));
-
-nmeas = 5;
+nmeas = 3;
 ncon = 3;
-[K,CL,asd] = hinfsyn(P,nmeas,ncon);
-save('K_matrix.mat','K');
-save('CL_matrix.mat','CL');
+
+% Weighting functions
+W1 = tf(1000) * mkfilter(0.2,2,'rc')  * mkfilter(2,1,'rc')^-1;
+%W3 = tf(1000) * mkfilter(0.2,2,'rc')^-1;
+Paug = augw(P, W1, [], []);
+
+[K,CL,asd] = hinfsyn(Paug,nmeas,ncon);
+bode(W1);
+figure(2);
+sigma(P);
+
+u = [-424941; 180967; -63065];
+
+Q=diag([1 1 10 10 10]);
+R=diag([0.1 1 5]);
+[Gain, S, poles] = lqr(Ar, Br, Q, R);
+CLsys = ss(Ar,-Br*Gain,eye(5,5),zeros(5,5));
+G = tf(CLsys);
+Gain
+
