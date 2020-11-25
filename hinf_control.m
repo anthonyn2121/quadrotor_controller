@@ -49,6 +49,8 @@ Paug = augw(P, W1, [], []);
 bode(W1);
 figure(2);
 sigma(P);
+figure(3);
+lsim(CL,zeros(3,10001),linspace(0,20,10001),randn(14,1));
 
 u = [-424941; 180967; -63065];
 
