@@ -84,18 +84,19 @@ class System(object):
         error_pos = flat_output['x'] - state['x']
         error_vel = flat_output['x_dot'] - state['v']
 
+
         # Altitude control with constant feedforward compensation for gravity 
         # Total thrust 
-        T = self.m*self.g - (self.Kp[2]*error_pos[2] + self.Kd[2]*error_vel)
-
+        T_tot = self.m*self.g - (self.Kp[2]*error_pos[2] + self.Kd[2]*error_vel[2])
+        
         # Find desired roll and pitch 
-        roll_des = self.Kp[0]*error_pos + self.Kd[0]*error_vel # x-axis 
-        pitch_des = self.Kp[1]*error_pos + self.Kd[1]*error_vel # y-axis 
+        roll_des = self.Kp[0]*error_pos[0] + self.Kd[0]*error_vel[0] # x-axis 
+        pitch_des = self.Kp[1]*error_pos[1] + self.Kd[1]*error_vel[1] # y-axis 
 
         # Find error in attitude 
-        euler_angles = R.from_quat(state['quaternion']).as_euler('xyz', degrees=False)
-        error_att = np.array([roll_des, pitch_des, flat_output['yaw']]) - euler_angles
-        
+        euler_angles = Rotation.from_quat(state['q']).as_euler('xyz', degrees=False)
+        error_att = np.array([roll_des, pitch_des, flat_output['yaw']]) - euler_angles        
+
         # Attitude control, given by torque matrix
         # desired values 
         psi_dot_des = (state['w'][2]-flat_output['yaw_dot'])/C(roll_des)    
@@ -103,6 +104,7 @@ class System(object):
 
         euler_rate_des = np.array([theta_dot_des, psi_dot_des, flat_output['yaw_dot']]) # into array 
 
+        
         # current values 
         psi_dot_curr = (state['w'][1] + (state['w'][0]/C(euler_angles[2]))) / (S(euler_angles[0])*C(euler_angles[2]) + T(euler_angles[0]/euler_angles[2])*T(euler_angles[2]))
         theta_dot_curr = (state['w'][0] - psi_dot_curr*S(euler_angles[0])*S(euler_angles[2]))/C(euler_angles[2])
@@ -118,17 +120,18 @@ class System(object):
         tau2 = self.Kr[1]*error_att[1] + self.Kw[1]*euler_rate_err[1]
         tau3 = self.Kr[2]*error_att[2] + self.Kw[2]*euler_rate_err[2]
         # tau = np.array([tau1, tau2, tau3])  
-    
+
+
         # Solve for omega 
-        u = np.array([tau1, tau2, tau3, T])
+        u = np.array([tau1, tau2, tau3, T_tot])
         A = np.array([
-            [0, self.ct*self.l, 0, -self.ct*self.l], 
+            [0, -self.ct*self.l, 0, self.ct*self.l], 
             [-self.ct*self.l, 0, self.ct*self.l, 0], 
             [-self.cq, self.cq, -self.cq, self.cq], 
             [self.ct, self.ct, self.ct, self.ct]
         ])
-
-        w = np.linalg.inv(A) @ u
+        w_squared =  np.linalg.inv(A) @ u
+        print(w_squared)
         return w 
 
 
