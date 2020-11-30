@@ -37,12 +37,16 @@ class System(object):
         self.Kd = Kd 
         self.d = Kt/Kd
         self.g = g # gravity 
+        
+        self.ct = 1 
+        self.cq = 1 
         ############ 
         self.Kp = np.array([1, 1, 1]) # proportional gains ~ position 
         self.Kd = np.array([1, 1, 1]) # derivative gains ~ position 
         self.Kr = np.array([1, 1, 1]) # proportional gains ~ attitude 
         self.Kw = np.array([1, 1, 1,]) # derivative gains ~ attitude 
 
+        
     def get_params(self):
         m = quad_params['mass']
         Ixx = quad_params['Ixx']
@@ -55,7 +59,7 @@ class System(object):
         g = 9.81
         return m, Ixx, Iyy, Izz, l, Kt, Kd, d, g 
 
-    def PD_control(self, current_state, goal_state): 
+    def PD_control(self, state, flat_output): 
         '''
         state = {
             x, position, m 
@@ -92,12 +96,42 @@ class System(object):
         euler_angles = R.from_quat(state['quaternion']).as_euler('xyz', degrees=False)
         error_att = np.array([roll_des, pitch_des, flat_output['yaw']]) - euler_angles
         
-        
-        
-        
-        # Attitude control, given by torque matrix 
-        tau1 = self.Kr[0]*error_att + self.Kw[0]*
+        # Attitude control, given by torque matrix
+        # desired values 
+        psi_dot_des = (state['w'][2]-flat_output['yaw_dot'])/C(roll_des)    
+        theta_dot_des = (state['w'][0] - psi_dot_des*S(roll_des)*S(pitch_des))/C(pitch_des)
 
-        return T, tau 
+        euler_rate_des = np.array([theta_dot_des, psi_dot_des, flat_output['yaw_dot']]) # into array 
+
+        # current values 
+        psi_dot_curr = (state['w'][1] + (state['w'][0]/C(euler_angles[2]))) / (S(euler_angles[0])*C(euler_angles[2]) + T(euler_angles[0]/euler_angles[2])*T(euler_angles[2]))
+        theta_dot_curr = (state['w'][0] - psi_dot_curr*S(euler_angles[0])*S(euler_angles[2]))/C(euler_angles[2])
+        phi_dot_curr = (state['w'][2] - psi_dot_curr*C(euler_angles[0])) 
+
+        euler_rate_curr = np.array([theta_dot_curr, psi_dot_curr, phi_dot_curr]) # into array 
+
+        # error matrix 
+        euler_rate_err = euler_rate_des - euler_rate_curr
+        
+        # tau matrix
+        tau1 = self.Kr[0]*error_att[0] + self.Kw[0]*euler_rate_err[0]
+        tau2 = self.Kr[1]*error_att[1] + self.Kw[1]*euler_rate_err[1]
+        tau3 = self.Kr[2]*error_att[2] + self.Kw[2]*euler_rate_err[2]
+        # tau = np.array([tau1, tau2, tau3])  
+    
+        # Solve for omega 
+        u = np.array([tau1, tau2, tau3, T])
+        A = np.array([
+            [0, self.ct*self.l, 0, -self.ct*self.l], 
+            [-self.ct*self.l, 0, self.ct*self.l, 0], 
+            [-self.cq, self.cq, -self.cq, self.cq], 
+            [self.ct, self.ct, self.ct, self.ct]
+        ])
+
+        w = np.linalg.inv(A) @ u
+        return w 
+
+
 if __name__ == "__main__": 
     quad = System(quad_params)
+    quad.PD_control()
