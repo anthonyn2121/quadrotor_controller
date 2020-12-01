@@ -80,7 +80,6 @@ class System(object):
             }
         '''
 
-        # Find errors in position and velocity 
         error_pos = flat_output['x'] - state['x']
         error_vel = flat_output['x_dot'] - state['v']
 
@@ -103,24 +102,25 @@ class System(object):
         theta_dot_des = (state['w'][0] - psi_dot_des*S(roll_des)*S(pitch_des))/C(pitch_des)
 
         euler_rate_des = np.array([theta_dot_des, psi_dot_des, flat_output['yaw_dot']]) # into array 
-
         
         # current values 
-        psi_dot_curr = (state['w'][1] + (state['w'][0]/C(euler_angles[2]))) / (S(euler_angles[0])*C(euler_angles[2]) + T(euler_angles[0]/euler_angles[2])*T(euler_angles[2]))
+        psi_dot_curr = (state['w'][1] + (state['w'][0]/C(euler_angles[2]))) / \
+            (S(euler_angles[0])*C(euler_angles[2]) + T(euler_angles[0]/euler_angles[2])*T(euler_angles[2]) + .00001)
         theta_dot_curr = (state['w'][0] - psi_dot_curr*S(euler_angles[0])*S(euler_angles[2]))/C(euler_angles[2])
         phi_dot_curr = (state['w'][2] - psi_dot_curr*C(euler_angles[0])) 
 
         euler_rate_curr = np.array([theta_dot_curr, psi_dot_curr, phi_dot_curr]) # into array 
 
         # error matrix 
-        euler_rate_err = euler_rate_des - euler_rate_curr
-        
+        euler_rate_err = np.abs(euler_rate_des - euler_rate_curr)
+
+
         # tau matrix
         tau1 = self.Kr[0]*error_att[0] + self.Kw[0]*euler_rate_err[0]
         tau2 = self.Kr[1]*error_att[1] + self.Kw[1]*euler_rate_err[1]
         tau3 = self.Kr[2]*error_att[2] + self.Kw[2]*euler_rate_err[2]
         # tau = np.array([tau1, tau2, tau3])  
-
+        
 
         # Solve for omega 
         u = np.array([tau1, tau2, tau3, T_tot])
@@ -131,8 +131,9 @@ class System(object):
             [self.ct, self.ct, self.ct, self.ct]
         ])
         w_squared =  np.linalg.inv(A) @ u
-        print(w_squared)
-        return w 
+        
+        # print(w_squared)
+        cmd_motor_speeds = (np.sqrt(np.abs(w_squared)))
 
 
 if __name__ == "__main__": 
