@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.interpolate as sp
 
 class WaypointTraj(object):
     """
@@ -19,6 +20,21 @@ class WaypointTraj(object):
             points, (N, 3) array of N waypoint coordinates in 3D
         """
 
+        self.v = 1 #m/s
+        self.points = points
+        self.t = np.zeros(len(points),)
+
+        if np.shape(self.points) == (3,) or np.shape(self.points) == (1,3):
+            pass
+        elif np.shape(self.points) != (3,) or np.shape(self.points) != (1,3):
+            for i in range(len(self.t)-1):
+                self.t[(i+1)] = np.linalg.norm((points[(i+1)]-points[i]))/self.v
+
+            self.point_t = np.zeros(len(points),)
+            for i in range(int(len(self.t)-1)):
+                self.point_t[(i+1)] = self.point_t[i] + self.t[i+1]
+
+            self.f = sp.CubicSpline(self.point_t,self.points,axis = 0)
         # STUDENT CODE HERE
 
     def update(self, t):
@@ -46,6 +62,13 @@ class WaypointTraj(object):
         yaw_dot = 0
 
         # STUDENT CODE HERE
+        if np.shape(self.points) == (3,) or np.shape(self.points) == (1,3):
+            x = np.reshape(self.points,(3,))
+        elif np.shape(self.points) != (3,) or np.shape(self.points) != (1,3):
+            if t > self.point_t[-1]:
+                x = self.points[-1]
+            else:
+                x = self.f(t)
 
         flat_output = { 'x':x, 'x_dot':x_dot, 'x_ddot':x_ddot, 'x_dddot':x_dddot, 'x_ddddot':x_ddddot,
                         'yaw':yaw, 'yaw_dot':yaw_dot}

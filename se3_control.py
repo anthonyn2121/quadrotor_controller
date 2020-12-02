@@ -59,7 +59,7 @@ class SE3Control(object):
 
         #Attitude Gains
         self.Kr = np.diag(np.array([1, 1, 10]))
-        self.Kw = np.diag(np.array([45, 65, 10]))
+        self.Kw = np.diag(np.array([55, 75, 10]))
         
         
     def update(self, t, state, flat_output):
