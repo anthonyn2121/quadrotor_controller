@@ -52,10 +52,14 @@ class SE3Control(object):
         self.gamma = self.k_drag/self.k_thrust
         
         # STUDENT CODE HERE
-        self.Kp = np.diag(np.array([2, 2, 2]))
-        self.Kd = np.diag(np.array([15, 30, 10]))
-        self.Kr = np.diag(np.array([3, 3, 10]))
-        self.Kw = np.diag(np.array([20, 40, 10]))
+
+        #Position Gains
+        self.Kp = np.diag(np.array([2, 6, 2]))
+        self.Kd = np.diag(np.array([50, 70, 10]))
+
+        #Attitude Gains
+        self.Kr = np.diag(np.array([1, 1, 10]))
+        self.Kw = np.diag(np.array([45, 65, 10]))
         
         
     def update(self, t, state, flat_output):

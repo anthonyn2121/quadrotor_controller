@@ -43,7 +43,7 @@ my_traj = hover_traj.HoverTraj()
 w = 2
 world = World.empty((-w, w, -w, w, -w, w))
 t_final = 60
-initial_state = {'x': np.array([.5, 1 , 1]),
+initial_state = {'x': np.array([0, .5, 1]),
                  'v': np.zeros(3,),
                  'q': np.array([0, 0, 0, 1]), # [i,j,k,w]
                  'w': np.zeros(3,)}
@@ -90,24 +90,24 @@ if plot_results:
     ax.set_xlabel('time, s')
     ax.grid('major')
 
-    # Orientation and Angular Velocity vs. Time
-    # (fig, axes) = plt.subplots(nrows=2, ncols=1, sharex=True, num='Orientation vs Time')
-    # q_des = control['cmd_q']
-    # q = state['q']
-    # ax = axes[0]
-    # ax.plot(time, q_des[:,0], 'r', time, q_des[:,1], 'g', time, q_des[:,2], 'b', time, q_des[:,3], 'k')
-    # ax.plot(time, q[:,0], 'r.',    time, q[:,1], 'g.',    time, q[:,2], 'b.',    time, q[:,3],     'k.')
-    # ax.legend(('i', 'j', 'k', 'w'))
-    # ax.set_ylabel('quaternion')
-    # ax.set_xlabel('time, s')
-    # ax.grid('major')
-    # w = state['w']
-    # ax = axes[1]
-    # ax.plot(time, w[:,0], 'r.', time, w[:,1], 'g.', time, w[:,2], 'b.')
-    # ax.legend(('x', 'y', 'z'))
-    # ax.set_ylabel('angular velocity, rad/s')
-    # ax.set_xlabel('time, s')
-    # ax.grid('major')
+    #Orientation and Angular Velocity vs. Time
+    (fig, axes) = plt.subplots(nrows=2, ncols=1, sharex=True, num='Orientation vs Time')
+    q_des = control['cmd_q']
+    q = state['q']
+    ax = axes[0]
+    ax.plot(time, q_des[:,0], 'r', time, q_des[:,1], 'g', time, q_des[:,2], 'b', time, q_des[:,3], 'k')
+    ax.plot(time, q[:,0], 'r.',    time, q[:,1], 'g.',    time, q[:,2], 'b.',    time, q[:,3],     'k.')
+    ax.legend(('i', 'j', 'k', 'w'))
+    ax.set_ylabel('quaternion')
+    ax.set_xlabel('time, s')
+    ax.grid('major')
+    w = state['w']
+    ax = axes[1]
+    ax.plot(time, w[:,0], 'r.', time, w[:,1], 'g.', time, w[:,2], 'b.')
+    ax.legend(('x', 'y', 'z'))
+    ax.set_ylabel('angular velocity, rad/s')
+    ax.set_xlabel('time, s')
+    ax.grid('major')
 
     # Commands vs. Time
     # (fig, axes) = plt.subplots(nrows=3, ncols=1, sharex=True, num='Commands vs Time')
