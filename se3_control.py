@@ -52,10 +52,10 @@ class SE3Control(object):
         self.gamma = self.k_drag/self.k_thrust
         
         # STUDENT CODE HERE
-        self.Kp = np.diag(np.array([2, 2, 2]))
-        self.Kd = np.diag(np.array([15, 30, 10]))
-        self.Kr = np.diag(np.array([3, 3, 10]))
-        self.Kw = np.diag(np.array([20, 40, 10]))
+        self.Kp = np.diag(np.array([2, 2.3, 2]))
+        self.Kd = np.diag(np.array([50, 65, 10]))
+        self.Kr = np.diag(np.array([1, 1, 10]))
+        self.Kw = np.diag(np.array([40, 40, 10]))
         
         
     def update(self, t, state, flat_output):
@@ -126,6 +126,8 @@ class SE3Control(object):
         u = np.append(u1, u2)
         
         F = np.linalg.inv(A) @ u 
+        print(F)
+
         
         cmd_motor_speeds = np.sqrt(F/self.k_thrust)
 
@@ -134,6 +136,11 @@ class SE3Control(object):
                 cmd_motor_speeds[i] = self.rotor_speed_min
             if cmd_motor_speeds[i] > self.rotor_speed_max: 
                 cmd_motor_speeds[i] = self.rotor_speed_max
+
+
+        # print(np.sqrt(np.sum(np.square(flat_output['x'] - state['x']))))
+
+
 
         control_input = {'cmd_motor_speeds':cmd_motor_speeds,
                          'cmd_thrust':cmd_thrust,
