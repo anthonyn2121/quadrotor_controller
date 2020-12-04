@@ -73,10 +73,9 @@ legend('K','error K-Kr')
 figure(7);
 Tr = feedback(P*Kr,eye(3));
 T = feedback(P*K,eye(3));
-step(T,'b',Tr,'r-.',2)
-title('Responses to step commands for alpha and theta', 'FontSize',24);
-legend('K','Kr','FontSize',20)
-set(gca,'ylim',{-2, 2})
+step(T,'b',Tr,'r-.',3)
+title('Responses to step commands for alpha and theta');
+legend('K','Kr')
 %% Robust feedback linearization
 %v = K.D * x_hat + K.C * 
 u = linearize(x,v)
