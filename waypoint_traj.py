@@ -102,7 +102,7 @@ class WaypointTraj(object):
         const_a = np.linalg.norm(self.dist)*2/(self.times[1]**2)
         #a = np.array([const_a, const_a, 0])
         a = np.array([.1,.1,0])
-        disturbance = np.array([.05,0,0])
+        disturbance = np.array([.05, 0, 0])
         #disturbance = np.array([0,0,0])
         a -= disturbance
         #a = np.array([0,0,0])
@@ -144,7 +144,7 @@ class WaypointTraj(object):
         if self.ctr < 5:
             self.ctr += 1
 
-        print(x, x_dot, x_ddot)
+        #print(x, x_dot, x_ddot)
 
         flat_output = { 'x':x, 'x_dot':x_dot, 'x_ddot':x_ddot, 'x_dddot':x_dddot, 'x_ddddot':x_ddddot,
                         'yaw':yaw, 'yaw_dot':yaw_dot}

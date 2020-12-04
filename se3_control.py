@@ -131,7 +131,7 @@ class SE3Control(object):
         #print(u)
 
         #Develop adaptive terms to be added to tau1 and tau2
-        gamma = .02 #MUST BE POSITIVE
+        gamma = .004 #MUST BE POSITIVE
         
         A_dotx = -gamma*(state['x'][0]- flat_output['x'][0])
         A_doty = -gamma*(state['x'][1]- flat_output['x'][1])

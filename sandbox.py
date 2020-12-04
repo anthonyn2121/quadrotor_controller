@@ -46,7 +46,7 @@ my_traj = waypoint_traj.WaypointTraj(points)
 
 w = 4
 world = World.empty((-w, w, -w, w, -w, w))
-t_final = 60
+t_final = 30
 initial_state = {#'x': np.array([0, .5, 1]),
                  'x': np.array([0, 0, 0]),
                  'v': np.zeros(3,),
