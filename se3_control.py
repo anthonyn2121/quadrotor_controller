@@ -128,6 +128,20 @@ class SE3Control(object):
             [gamma, -gamma, gamma, -gamma]
         ])
         u = np.append(u1, u2)
+        #print(u)
+
+        #Develop adaptive terms to be added to tau1 and tau2
+        gamma = .02 #MUST BE POSITIVE
+        
+        A_dotx = -gamma*(state['x'][0]- flat_output['x'][0])
+        A_doty = -gamma*(state['x'][1]- flat_output['x'][1])
+
+        A_x = A_dotx*(1/500)
+        A_y = A_doty*(1/500)
+
+        #Add adaptive terms
+        u[3] = u[3] - A_x 
+        u[2] = u[2] - A_y
         
         F = np.linalg.inv(A) @ u 
         
